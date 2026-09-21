@@ -25,7 +25,7 @@ def main():
 
     if args.operation == "add":
         result = add(args.a, args.b)
-	elif args.operation == "subtract":
+    elif args.operation == "subtract":
     	result = subtract(args.a, args.b)
     elif args.operation == "multiply":
         result = multiply(args.a, args.b)
