@@ -6,8 +6,10 @@ from pathlib import Path
 import pandas as pd
 
 from class6_7_netflix_utils import (
+    clean_text,
     drop_missing_rows,
     remove_duplicates,
+    remove_iqr_outliers,
     show_overview,
 )
 
@@ -50,6 +52,8 @@ def main():
         logger.error(f"Input file not found: {data_path}")
         sys.exit(1)
 
+    df_original = df.copy()
+
     logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
 
     # TODO 5:
@@ -72,6 +76,27 @@ def main():
     df = drop_missing_rows(df)
     removed = before - len(df)
     logger.info(f"Dropped {removed} rows with missing values")
+
+    try:
+        df = remove_iqr_outliers(df, "runtime_minutes", 1.5)
+    except ValueError:
+        sys.exit(1)
+
+    logger.info("Removed runtime_minutes outlier(s)")
+
+    for column in ["title", "type", "country"]:
+        df[column] = df[column].apply(clean_text)
+        logger.info(f"Cleaned text column: {column}")
+
+    report = {
+        "rows_before": len(df_original),
+        "rows_after": len(df),
+        "rows_removed": len(df_original) - len(df),
+        "columns": len(df.columns),
+    }
+
+    logger.info(f"Cleaning complete: {report}")
+
 
 if __name__ == "__main__":
     main()
